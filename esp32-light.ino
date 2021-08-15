@@ -18,7 +18,7 @@ bool fishtank_pump;
 void handleSketchDownload() {
 
   const char* PATH = "/ota/arduino/update-%s-%d.bin";
-  const unsigned long CHECK_INTERVAL = 10000;
+  const unsigned long CHECK_INTERVAL = 60000;
 
   static unsigned long previousMillis;
 
@@ -119,7 +119,6 @@ void loop() {
   checkAndConnectWifi();
   WiFiClient client = server.available();
   rest.handle(client);
-  Serial.println("In loop");
   handleSketchDownload();
 }
 
@@ -147,7 +146,8 @@ void sendUpdate(String guid, bool state){
   HttpClient httpClient = HttpClient(wifi, UPDATE_SERVER, SERVER_PORT);
 
   String contentType = "application/x-www-form-urlencoded";
-  String data = "guid=" + guid + "&ip=" + IpAddress2String(WiFi.localIP()) + "&state=" + state + "&sw_version=" + String(VERSION);
+  String state_str = state ? "true" : "false";
+  String data = "guid=" + guid + "&ip=" + IpAddress2String(WiFi.localIP()) + "&state=" + state_str + "&sw_version=" + String(VERSION);
   Serial.println(data);
   httpClient.put("/smarthome/update",contentType,data);
   int statusCode = httpClient.responseStatusCode();
